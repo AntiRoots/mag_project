@@ -26,3 +26,7 @@ plt.figure(figsize=(12, 8))
 nx.draw(G, with_labels=True, node_color="lightblue", edge_color="gray", node_size=1000, font_size=8)
 plt.title("Kohtulahendite vahelised seosed seaduse sätete põhjal")
 plt.show()
+
+# Salvesta joonis failina
+plt.savefig("data/lahendid_graph.png")
+
