@@ -1,1 +1,32 @@
+name: Data Cleaning Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  clean-and-test-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repo kloonimine
+        uses: actions/checkout@v3
+
+      - name: Python'i seadistamine
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Vajalike pakettide installimine
+        run: pip install pandas
+
+      - name: Testide jooksutamine
+        run: python -m unittest discover tests
+
+      - name: Andmete puhastamine
+        run: python data/process_data.py
+
+      - name: CSV-faili üleslaadimine artefaktina
+        uses: actions/upload-artifact@v3
+        with:
+          name: cleaned-data
+          path: data/cleaned_lahendid.csv
 
