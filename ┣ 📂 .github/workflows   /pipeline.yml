@@ -30,3 +30,14 @@ jobs:
           name: cleaned-data
           path: data/cleaned_lahendid.csv
 
+      - name: Installi vajalikud Python'i paketid
+        run: pip install pandas networkx matplotlib
+
+      - name: Andmete puhastamine ja visualiseerimine
+        run: python data/process_data.py
+        
+      - name: Salvesta joonis artefaktina
+        uses: actions/upload-artifact@v3
+        with:
+          name: kohtulahendite-graaf
+          path: data/lahendid_graph.png
