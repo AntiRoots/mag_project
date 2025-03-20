@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 # Laadi andmed
 df = pd.read_csv("data/kohtulahendid.csv", delimiter=";", encoding="utf-8")
 
+# Eemalda tühjad kuupäeva lahtrid enne teisendamist
+df = df[df["Lahendi kp"].notna()]
+
 # Muuda kuupäevad datetime formaati
 df["Lahendi kp"] = pd.to_datetime(df["Lahendi kp"], dayfirst=True, errors='coerce')
 
