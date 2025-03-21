@@ -4,20 +4,25 @@ import os
 
 # Määra kaustad
 DATA_PATH = "data/kohtulahendid.csv"
-OUTPUT_DIR = "docs"  # Muudetud "output" → "docs"
+OUTPUT_DIR = "docs"
 CHART_PATH = os.path.join(OUTPUT_DIR, "chart.png")
 
 # Loo väljundi kaust, kui see puudub
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Laadi andmed
-df = pd.read_csv(DATA_PATH, delimiter=";", encoding="utf-8")
+# Laadi andmed, eemaldades võimalikud BOM-märgid
+with open(DATA_PATH, "r", encoding="utf-8-sig") as file:
+    df = pd.read_csv(file, delimiter=";", encoding="utf-8")
 
-# Eemalda tühjad või vigased kuupäeva lahtrid enne teisendamist
+# Kontrolli, kas vajalik veerg on olemas
+if "Lahendi kp" not in df.columns:
+    raise ValueError("❌ CSV failist ei leitud veergu 'Lahendi kp'!")
+
+# Eemalda tühjad või vigased kuupäevad
 df = df[df["Lahendi kp"].notna()]
 
-# Proovi teisendada kuupäevad ja eemalda vigased read
-df["Lahendi kp"] = pd.to_datetime(df["Lahendi kp"], dayfirst=True, errors='coerce')
+# Proovi teisendada kuupäevad ja eemalda vead
+df["Lahendi kp"] = pd.to_datetime(df["Lahendi kp"], format="%d.%m.%Y", errors="coerce")
 df = df.dropna(subset=["Lahendi kp"])  # Eemalda read, kus kuupäevad ei õnnestunud
 
 # Loenda kohtulahendite arv kuude kaupa
@@ -40,4 +45,3 @@ else:
     # Salvesta pilt
     plt.savefig(CHART_PATH, dpi=300)
     print(f"✅ Graafik genereeritud: {CHART_PATH}")
-
