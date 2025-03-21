@@ -3,9 +3,9 @@ name: Genereeri ja uuenda graafik
 on:
   push:
     paths:
-      - "data/kohtulahendid.csv"  # Käivitub ainult siis, kui CSV muutub
+      - "data/kohtulahendid.csv"  # Käivitub, kui CSV muutub
   schedule:
-    - cron: '0 0 * * 1'  # Käivitab igal esmaspäeval kell 00:00 UTC
+    - cron: '0 0 * * 1'  # Käivitub igal esmaspäeval kell 00:00 UTC
   workflow_dispatch:  # Võimaldab käsitsi käivitada
 
 jobs:
@@ -20,14 +20,11 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Installi Pandas ja Matplotlib
+      - name: Installi vajalikud paketid
         run: pip install pandas matplotlib
 
       - name: Käivita skript ja loo graafik
         run: python scripts/generate_chart.py
-
-      - name: Liiguta graafik `docs/` kausta
-        run: mv output/chart.png docs/chart.png
 
       - name: Commiti ja pushi uus graafik
         run: |
