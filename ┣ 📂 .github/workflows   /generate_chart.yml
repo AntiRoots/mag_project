@@ -26,6 +26,9 @@ jobs:
       - name: Käivita skript ja loo graafik
         run: python scripts/generate_chart.py
 
+      - name: Liiguta graafik `docs/` kausta
+        run: mv output/chart.png docs/chart.png
+
       - name: Commiti ja pushi uus graafik
         run: |
           git config --global user.name "github-actions"
