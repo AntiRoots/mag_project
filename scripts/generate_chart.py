@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 # Määra kaustad
-DATA_PATH = "data/kohtulahendid.csv"
+DATA_PATH = "data/lahendid.csv"
 OUTPUT_DIR = "docs"  # GitHub Pages loeb ainult `docs/` kaustast
 CHART_PATH = os.path.join(OUTPUT_DIR, "chart.png")
 
