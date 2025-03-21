@@ -2,8 +2,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+# Määra kaustad
+DATA_PATH = "data/kohtulahendid.csv"
+OUTPUT_DIR = "output"
+CHART_PATH = os.path.join(OUTPUT_DIR, "chart.png")
+
+# Loo väljundi kaust, kui see puudub
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 # Laadi andmed
-df = pd.read_csv("data/kohtulahendid.csv", delimiter=";", encoding="utf-8")
+df = pd.read_csv(DATA_PATH, delimiter=";", encoding="utf-8")
 
 # Eemalda tühjad kuupäeva lahtrid enne teisendamist
 df = df[df["Lahendi kp"].notna()]
@@ -28,16 +36,8 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 
 # Salvesta pilt
-plt.savefig("docs/chart.png", dpi=300)  # Lisatud kõrgem DPI, et pilt oleks kvaliteetsem
-print("Graafik genereeritud: docs/chart.png")
+plt.savefig(CHART_PATH, dpi=300)  # Kõrgem DPI paremaks kvaliteediks
+print(f"✅ Graafik genereeritud: {CHART_PATH}")
 
-# Salvesta pilt
-chart_path = "docs/chart.png"
-plt.savefig(chart_path, dpi=300)
-print(f"Graafik genereeritud: {chart_path}")
-
-# Kontrolli, kas fail on olemas
-if os.path.exists(chart_path):
-    print("✅ Graafik on edukalt loodud!")
-else:
-    print("❌ Viga: graafikut ei leitud pärast genereerimist!")
+# Kuvab graafiku (valikuline, kui soovid ka näha)
+# plt.show()
