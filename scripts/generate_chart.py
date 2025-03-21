@@ -40,3 +40,4 @@ else:
     # Salvesta pilt
     plt.savefig(CHART_PATH, dpi=300)
     print(f"✅ Graafik genereeritud: {CHART_PATH}")
+
