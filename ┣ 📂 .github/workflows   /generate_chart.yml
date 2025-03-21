@@ -3,9 +3,9 @@ name: Genereeri ja uuenda graafik
 on:
   push:
     paths:
-      - "data/kohtulahendid.csv"  # Käivitub, kui CSV muutub
+      - "data/kohtulahendid.csv"  # Käivitub ainult siis, kui CSV muutub
   schedule:
-    - cron: '0 0 * * 1'  # Käivitub igal esmaspäeval kell 00:00 UTC
+    - cron: '0 0 * * 1'  # Käivitab igal esmaspäeval kell 00:00 UTC
   workflow_dispatch:  # Võimaldab käsitsi käivitada
 
 jobs:
@@ -20,16 +20,24 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Installi vajalikud paketid
+      - name: Installi Pandas ja Matplotlib
         run: pip install pandas matplotlib
 
       - name: Käivita skript ja loo graafik
         run: python scripts/generate_chart.py
+
+      - name: Kontrolli, kas graafik on loodud
+        run: |
+          echo "📂 Kontrollin kausta sisu:"
+          ls -lah docs/
+          echo "🖼 Faili tüüp:"
+          file docs/chart.png || echo "❌ Graafikut ei leitud!"
 
       - name: Commiti ja pushi uus graafik
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add docs/chart.png
-          git commit -m "Uuendatud graafik"
-          git push
+          git status  # Kontrollime, kas fail on staged
+          git commit -m "Uuendatud graafik" || echo "❌ Ei midagi commitimiseks"
+          git push || echo "❌ Ei saanud pushida"
