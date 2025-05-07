@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <title>Kogukondade graafid</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 50px;
+      text-align: center;
+    }
+    select, button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📍 Kogukondade graafid</h1>
+  <p>Vali kogukond, mille graafi soovid avada:</p>
+
+  <select id="communitySelect">
+    <!-- Uuenda vastavalt olemasolevatele failidele -->
+    <option value="kogukond_1.html">Kogukond 1</option>
+    <option value="kogukond_3.html">Kogukond 3</option>
+    <option value="kogukond_5.html">Kogukond 5</option>
+  </select>
+
+  <br>
+
+  <button onclick="openCommunity()">Ava graaf</button>
+
+  <script>
+    function openCommunity() {
+      const selectedFile = document.getElementById("communitySelect").value;
+      window.open(selectedFile, "_blank");
+    }
+  </script>
+</body>
+</html>
