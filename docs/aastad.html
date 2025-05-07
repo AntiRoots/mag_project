@@ -7,48 +7,54 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
+      align-items: center;
     }
 
     #topbar {
       background: #f8f8f8;
+      width: 100%;
       padding: 10px 20px;
       border-bottom: 1px solid #ccc;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      flex-shrink: 0;
-    }
-
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      flex-grow: 1;
     }
 
     select {
       padding: 8px 16px;
       font-size: 14px;
-      margin: 5px;
+      margin: 10px;
     }
 
     label {
       font-weight: bold;
+      margin-right: 10px;
+    }
+
+    #image-container {
+      margin: 20px;
+      width: 95%;
+      max-width: 1000px;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 <body>
 
   <div id="topbar">
-    <div>
-      <label for="yearSelect">Vali aasta:</label>
-      <select id="yearSelect" onchange="loadImage()">
-        <option value="">-- vali aasta --</option>
+    <label for="yearSelect">Vali aasta:</label>
+    <select id="yearSelect" onchange="loadImage()">
+      <option value="">-- vali aasta --</option>
         <option value="aastad/top5_sätted_1997.png">1997</option>
         <option value="aastad/top5_sätted_1999.png">1999</option>
         <option value="aastad/top5_sätted_2000.png">2000</option>
@@ -76,17 +82,17 @@
         <option value="aastad/top5_sätted_2023.png">2023</option>
         <option value="aastad/top5_sätted_2024.png">2024</option>
         <option value="aastad/top5_sätted_2025.png">2025</option>
-      </select>
-    </div>
-    <div style="width: 50px;"></div>
+    </select>
   </div>
 
-  <iframe id="imgFrame" src=""></iframe>
+  <div id="image-container">
+    <img id="chartImage" src="" alt="Vali aasta graafiku kuvamiseks" />
+  </div>
 
   <script>
     function loadImage() {
       const file = document.getElementById("yearSelect").value;
-      document.getElementById("imgFrame").src = file;
+      document.getElementById("chartImage").src = file;
     }
   </script>
 
