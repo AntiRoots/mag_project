@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <title>Graafivaade</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #topbar {
+      background: #f8f8f8;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="topbar">
+    <button onclick="window.location.href='index.html'">← Tagasi avalehele</button>
+    <span id="title"></span>
+    <span style="width: 50px;"></span>
+  </div>
+
+  <iframe id="frame" src=""></iframe>
+
+  <script>
+    // loe URL-ilt ?fail=... parameeter
+    const params = new URLSearchParams(window.location.search);
+    const file = params.get("fail");
+
+    if (file) {
+      document.getElementById("frame").src = file;
+
+      // kuvame pealkirja vastavalt failinimele
+      const titles = {
+        "G1_seadused.html": "G1: Seaduste graaf",
+        "G2_satted.html": "G2: Sätete graaf",
+        "kogukonnad.html": "Kogukondade graafid"
+      };
+      document.getElementById("title").textContent = titles[file] || "";
+    }
+  </script>
+
+</body>
+</html>
