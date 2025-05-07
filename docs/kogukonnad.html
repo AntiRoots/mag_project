@@ -4,23 +4,50 @@
   <meta charset="UTF-8">
   <title>Kogukondade graafid</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: sans-serif;
-      padding: 50px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
     }
-    select, button {
+
+    #topbar {
+      background: #f8f8f8;
       padding: 10px 20px;
-      font-size: 16px;
-      margin: 10px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    #iframe-container {
+      flex: 1;
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    select, button {
+      padding: 8px 16px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h1> G2 graafi kogukonnad (sõlmede arv > 11)</h1>
-  <p>Vali kogukond, mille graafi soovid vaadata:</p>
 
-  <select id="communitySelect">
+  <div id="topbar">
+    <button onclick="window.location.href='index.html'">← Tagasi avalehele</button>
+
+    <div>
+      <label for="communitySelect"><strong>Vali kogukond:</strong></label>
+      <select id="communitySelect" onchange="loadCommunity()">
+        <option value="">-- vali kogukond --</option>
     <option value="kogukonnad/kogukond_0.html">Kogukond 0</option>
     <option value="kogukonnad/kogukond_1.html">Kogukond 1</option>
     <option value="kogukonnad/kogukond_4.html">Kogukond 4</option>
@@ -54,17 +81,22 @@
     <option value="kogukonnad/kogukond_151.html">Kogukond 151</option>
     <option value="kogukonnad/kogukond_212.html">Kogukond 212</option>
     <option value="kogukonnad/kogukond_214.html">Kogukond 214</option>
-  </select>
+      </select>
+    </div>
 
-  <br>
+    <div style="width: 50px;"></div>
+  </div>
 
-  <button onclick="openCommunity()">Ava graaf</button>
+  <div id="iframe-container">
+    <iframe id="communityFrame" src=""></iframe>
+  </div>
 
   <script>
-    function openCommunity() {
-      const selectedFile = document.getElementById("communitySelect").value;
-      window.location.href = selectedFile; // avab samas aknas
+    function loadCommunity() {
+      const file = document.getElementById("communitySelect").value;
+      document.getElementById("communityFrame").src = file;
     }
   </script>
+
 </body>
 </html>
