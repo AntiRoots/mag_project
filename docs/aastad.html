@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <title>Aastate graafikud</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #topbar {
+      background: #f8f8f8;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      flex-grow: 1;
+    }
+
+    select {
+      padding: 8px 16px;
+      font-size: 14px;
+      margin: 5px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="topbar">
+    <div>
+      <label for="yearSelect">Vali aasta:</label>
+      <select id="yearSelect" onchange="loadImage()">
+        <option value="">-- vali aasta --</option>
+        <option value="aastad/top5_sätted_1997.png">1997</option>
+        <option value="aastad/top5_sätted_1999.png">1999</option>
+        <option value="aastad/top5_sätted_2000.png">2000</option>
+        <option value="aastad/top5_sätted_2002.png">2002</option>
+        <option value="aastad/top5_sätted_2003.png">2003</option>
+        <option value="aastad/top5_sätted_2004.png">2004</option>
+        <option value="aastad/top5_sätted_2005.png">2005</option>
+        <option value="aastad/top5_sätted_2006.png">2006</option>
+        <option value="aastad/top5_sätted_2007.png">2007</option>
+        <option value="aastad/top5_sätted_2008.png">2008</option>
+        <option value="aastad/top5_sätted_2009.png">2009</option>
+        <option value="aastad/top5_sätted_2010.png">2010</option>
+        <option value="aastad/top5_sätted_2011.png">2011</option>
+        <option value="aastad/top5_sätted_2012.png">2012</option>
+        <option value="aastad/top5_sätted_2013.png">2013</option>
+        <option value="aastad/top5_sätted_2014.png">2014</option>
+        <option value="aastad/top5_sätted_2015.png">2015</option>
+        <option value="aastad/top5_sätted_2016.png">2016</option>
+        <option value="aastad/top5_sätted_2017.png">2017</option>
+        <option value="aastad/top5_sätted_2018.png">2018</option>
+        <option value="aastad/top5_sätted_2019.png">2019</option>
+        <option value="aastad/top5_sätted_2020.png">2020</option>
+        <option value="aastad/top5_sätted_2021.png">2021</option>
+        <option value="aastad/top5_sätted_2022.png">2022</option>
+        <option value="aastad/top5_sätted_2023.png">2023</option>
+        <option value="aastad/top5_sätted_2024.png">2024</option>
+        <option value="aastad/top5_sätted_2025.png">2025</option>
+      </select>
+    </div>
+    <div style="width: 50px;"></div>
+  </div>
+
+  <iframe id="imgFrame" src=""></iframe>
+
+  <script>
+    function loadImage() {
+      const file = document.getElementById("yearSelect").value;
+      document.getElementById("imgFrame").src = file;
+    }
+  </script>
+
+</body>
+</html>
