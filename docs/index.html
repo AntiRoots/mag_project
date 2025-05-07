@@ -4,26 +4,62 @@
   <meta charset="UTF-8">
   <title>Graafide visualiseerimine</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: sans-serif;
-      padding: 50px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
     }
+
+    #topbar {
+      background: #f0f0f0;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+
+    #viewer {
+      flex: 1;
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
     button {
-      padding: 15px 30px;
+      padding: 10px 20px;
       font-size: 16px;
-      margin: 20px;
+      margin-left: 10px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>📊 Graafide visualiseerimine</h1>
-  <p>Vali, millist interaktiivset graafi soovid avada:</p>
 
-  <button onclick="window.open('G1_seadused.html', '_blank')">🧷 G1: Seaduste graaf</button>
-  <button onclick="window.open('G2_satted.html', '_blank')">📌 G2: Sätete graaf</button>
-  <br>
-  <button onclick="window.location.href='kogukonnad.html'">📂 Kogukondade graafid</button>
+  <div id="topbar">
+    <div>
+      <button onclick="loadGraph('G1_seadused.html')">🧷 G1: Seaduste graaf</button>
+      <button onclick="loadGraph('G2_satted.html')">📌 G2: Sätete graaf</button>
+      <button onclick="loadGraph('kogukonnad.html')">📂 Kogukondade graafid</button>
+    </div>
+  </div>
+
+  <div id="viewer">
+    <iframe id="frame" src=""></iframe>
+  </div>
+
+  <script>
+    function loadGraph(file) {
+      document.getElementById("frame").src = file;
+    }
+  </script>
+
 </body>
 </html>
