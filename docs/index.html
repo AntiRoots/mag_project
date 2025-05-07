@@ -1,62 +1,27 @@
 <!DOCTYPE html>
 <html lang="et">
 <head>
-  <meta charset="UTF-8" />
-  <title>Graafi visualiseerimine</title>
-  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Graafide visualiseerimine</title>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; }
-    #cy { width: 100vw; height: 100vh; display: block; }
+    body {
+      font-family: sans-serif;
+      padding: 50px;
+      text-align: center;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 16px;
+      margin: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div id="cy"></div>
+  <h1>📊 Graafide visualiseerimine</h1>
+  <p>Vali, millist interaktiivset graafi soovid avada:</p>
 
-  <script>
-    // Lae graaf JSON-failist
-    fetch('graaf_satted.json')
-      .then(response => response.json())
-      .then(data => {
-        // Muuda NetworkX node-link JSON Cytoscape'ile sobivaks
-        const elements = [];
-
-        data.nodes.forEach(node => {
-          elements.push({ data: { id: node.id, label: node.label || node.id } });
-        });
-
-        data.links.forEach(link => {
-          elements.push({ data: { source: link.source, target: link.target } });
-        });
-
-        // Käivita Cytoscape
-        cytoscape({
-          container: document.getElementById('cy'),
-          elements: elements,
-          style: [
-            {
-              selector: 'node',
-              style: {
-                'label': 'data(label)',
-                'background-color': '#0074D9',
-                'color': '#fff',
-                'text-valign': 'center',
-                'text-halign': 'center',
-              }
-            },
-            {
-              selector: 'edge',
-              style: {
-                'width': 2,
-                'line-color': '#ccc'
-              }
-            }
-          ],
-          layout: {
-            name: 'cose',
-            animate: true
-          }
-        });
-      });
-  </script>
+  <button onclick="window.open('G1_seadused.html', '_blank')">🧷 G1: Seaduste graaf</button>
+  <button onclick="window.open('G2_satted.html', '_blank')">📌 G2: Sätete graaf</button>
 </body>
 </html>
