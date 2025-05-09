@@ -23,7 +23,7 @@
   <pre id="codeBlock">Laen koodi...</pre>
 
   <script>
-    fetch('kood.txt')
+    fetch('https://antiroots.github.io/mag_project/kood.txt')
       .then(response => response.text())
       .then(data => {
         document.getElementById('codeBlock').textContent = data;
