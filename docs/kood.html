@@ -28,7 +28,7 @@
   <button onclick="copyCode()">📋 Kopeeri kood</button>
 
   <script>
-    fetch('code/analysis.py')
+    fetch('output/kood.py')
       .then(response => response.text())
       .then(data => {
         document.getElementById('codeBlock').textContent = data;
