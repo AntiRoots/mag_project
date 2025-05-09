@@ -407,3 +407,55 @@ def analyze_community_temporal_dynamics(dataframe, df_comm, name_dct, community_
     plt.show()
 
     return freq
+
+
+# Üldine töövoog
+# --- 1. KESKKONNA VALMISTAMINE ---
+Looühendus Google Drive või lae andmed otse lokaalsest failist
+Installi vajalikud teegid: pandas, networkx, matplotlib, seaborn, plotly, python-louvain
+
+# --- 2. ANDMETE LAADIMINE JA EELTÖÖTLUS ---
+Lae CSV-fail (nt kohtulahendid.csv)
+-> Sisaldab: "Kohtuasja nr", "Lahendi kp", "Seotud sätted"
+
+Puhasta andmed
+
+# --- 3. GRAAFI LOOMINE ---
+Funktsiooniga `create_interactive_graph(df, "G2 graaf")`:
+
+# --- 4. GRAAFI ÜLDISED OMADUSED ---
+Kutsu `get_graph_metrics(G)`:
+- Tippude ja servade arv
+- Tihedus
+- Komponentide arv ja suurima komponendi suurus
+
+# --- 5. TŠENTRAALSUSMÕÕDIKUD ---
+Käivita kõik viis mõõdikut:
+- `analyze_degree_centrality(G, name_dct, title)`
+- `analyze_betweenness_centrality(G, name_dct, title)`
+- `analyze_closeness_centrality(G, name_dct, title)`
+- `analyze_eigenvector_centrality_components(G, name_dct, title)`
+- `analyze_k_core(G, name_dct, title)`
+
+# --- 6. KOGUKONNAD ---
+Käivita `analyze_communities(G, name_dct, title)`
+-> Louvaini algoritmiga tuvastatakse kogukonnad
+
+
+# --- 7. IGA KOGUKONNA KESKSEMAD SÕLMED ---
+`analyze_communities_and_most_central_nodes(G, df_comm, name_dct, title)`
+-> iga suurema kogukonna kohta:
+   - loe kõige kesksem säte
+   - joonista alagraaf
+   - salvesta HTML-ina
+
+# --- 8. AJALINE DÜNAAMIKA ---
+`analyze_community_temporal_dynamics(df, df_comm, name_dct, kogukonna_id)`
+-> loo kuumakaart (heatmap), kuidas konkreetse kogukonna sätted muutuvad ajas
+
+# --- 9. (SOOVITUSLIK) TULEMUSTE SALVESTAMINE ---
+- Salvesta vaheandmed (pickle, csv)
+- Salvesta graafid HTML või PNG kujul
+
+# --- 10. (VABATAHTLIK) TULEMUSTE EKSPORT xLaw vms tarbeks ---
+- Võimalik eksportida kogukonnad + tsentraalsuse tabelid
