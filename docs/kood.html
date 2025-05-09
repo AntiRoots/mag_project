@@ -6,26 +6,21 @@
   <style>
     body {
       font-family: monospace;
-      background-color: #f4f4f4;
+      background-color: #f9f9f9;
       padding: 40px;
     }
     pre {
-      background: #fff;
+      background: #ffffff;
       padding: 20px;
       border: 1px solid #ccc;
+      max-width: 100%;
       overflow-x: auto;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h2>Minu analüüsi kood</h2>
-  <pre id="codeBlock"></pre>
-  <button onclick="copyCode()">📋 Kopeeri kood</button>
+  <pre id="codeBlock">Laen koodi...</pre>
 
   <script>
     fetch('output/kood.py')
@@ -33,13 +28,6 @@
       .then(data => {
         document.getElementById('codeBlock').textContent = data;
       });
-
-    function copyCode() {
-      const text = document.getElementById('codeBlock').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Kood kopeeritud!");
-      });
-    }
   </script>
 </body>
 </html>
