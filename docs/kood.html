@@ -23,7 +23,7 @@
   <pre id="codeBlock">Laen koodi...</pre>
 
   <script>
-    fetch('output/kood.py')
+    fetch('kood.txt')
       .then(response => response.text())
       .then(data => {
         document.getElementById('codeBlock').textContent = data;
