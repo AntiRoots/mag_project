@@ -411,12 +411,12 @@ def analyze_community_temporal_dynamics(dataframe, df_comm, name_dct, community_
 
 # Üldine töövoog
 # --- 1. KESKKONNA VALMISTAMINE ---
-Looühendus Google Drive või lae andmed otse lokaalsest failist
+Loo ühendus Google Drive või lae andmed otse lokaalsest failist
 Installi vajalikud teegid: pandas, networkx, matplotlib, seaborn, plotly, python-louvain
 
 # --- 2. ANDMETE LAADIMINE JA EELTÖÖTLUS ---
 Lae CSV-fail (nt kohtulahendid.csv)
--> Sisaldab: "Kohtuasja nr", "Lahendi kp", "Seotud sätted"
+Sisaldab: "Kohtuasja nr", "Lahendi kp", "Seotud sätted"
 
 Puhasta andmed
 
@@ -439,23 +439,18 @@ Käivita kõik viis mõõdikut:
 
 # --- 6. KOGUKONNAD ---
 Käivita `analyze_communities(G, name_dct, title)`
--> Louvaini algoritmiga tuvastatakse kogukonnad
+Louvaini algoritmiga tuvastatakse kogukonnad
 
 
 # --- 7. IGA KOGUKONNA KESKSEMAD SÕLMED ---
 `analyze_communities_and_most_central_nodes(G, df_comm, name_dct, title)`
--> iga suurema kogukonna kohta:
+iga suurema kogukonna kohta:
    - loe kõige kesksem säte
    - joonista alagraaf
    - salvesta HTML-ina
 
 # --- 8. AJALINE DÜNAAMIKA ---
 `analyze_community_temporal_dynamics(df, df_comm, name_dct, kogukonna_id)`
--> loo kuumakaart (heatmap), kuidas konkreetse kogukonna sätted muutuvad ajas
+loo kuumakaart (heatmap), kuidas konkreetse kogukonna sätted muutuvad ajas
 
-# --- 9. (SOOVITUSLIK) TULEMUSTE SALVESTAMINE ---
-- Salvesta vaheandmed (pickle, csv)
-- Salvesta graafid HTML või PNG kujul
 
-# --- 10. (VABATAHTLIK) TULEMUSTE EKSPORT xLaw vms tarbeks ---
-- Võimalik eksportida kogukonnad + tsentraalsuse tabelid
