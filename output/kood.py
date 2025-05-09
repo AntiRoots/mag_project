@@ -1,0 +1,410 @@
+import pandas as pd
+import numpy as np
+import re
+from IPython.display import display
+import os
+import json
+import pickle
+
+
+import networkx as nx
+from itertools import combinations
+from collections import Counter
+from networkx.algorithms.community import greedy_modularity_communities
+import community.community_louvain as community_louvain
+
+
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import MultiLabelBinarizer
+%matplotlib inline
+
+!pip install python-louvain
+
+
+def filter_laws_only(text):
+    if pd.isna(text):  # Kontroll puuduva väärtuse jaoks
+        return False
+    # Kui ei leita '§' märki, siis see on seaduse nimetus
+    return '§' not in text
+
+
+def filter_laws_with_sections(text):
+    if pd.isna(text):  
+        return False
+    # Kontrollin, et tekst sisaldab '§' ja vähemalt ühte täiendavat tähte nagu "lg" või "p." või "l."
+    return bool(re.search(r'§\s?\d+', text))  # Otsin seadust, kus on paragrahv ja lõigu number
+
+def create_interactive_graph(dataframe, title):
+    G = nx.Graph()
+
+    # Graafi servad
+    for case_id, group in dataframe.groupby("Kohtuasja nr"):
+        satted = list(group["Seotud sätted"].dropna())
+        if not satted:
+            continue
+        nodes = satted[0].split('\n')
+        for i in range(len(nodes)):
+            for j in range(i + 1, len(nodes)):
+                G.add_edge(nodes[i], nodes[j])
+
+    # Unikaalsed sõlmed
+    unique_satted = set()
+    for case_id, group in dataframe.groupby("Kohtuasja nr"):
+        satted = list(group["Seotud sätted"].dropna())
+        if satted:
+            unique_satted.update(satted[0].split('\n'))
+    unique_satted = sorted(list(unique_satted))
+
+    # Sõnastikud
+    index_dct = {n: i for i, n in enumerate(unique_satted)}
+    name_dct = {i: n for i, n in enumerate(unique_satted)}
+
+    # Ühendusmaatriks
+    connectivity = np.zeros((len(unique_satted), len(unique_satted)))
+    for case_id, group in dataframe.groupby("Kohtuasja nr"):
+        satted = list(group["Seotud sätted"].dropna())
+        if satted:
+            s = satted[0].split('\n')
+            for i in s:
+                for j in s:
+                    if i != j:
+                        connectivity[index_dct[i]][index_dct[j]] += 1
+
+    #  NetworkX graafi
+    G = nx.from_numpy_array(connectivity)
+    pos = nx.spring_layout(G,seed=32)
+
+    # Servad
+    edge_x, edge_y = [], []
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
+
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=0.5, color='#888'),
+        mode='lines'
+    )
+
+    # Sõlmed
+    node_x, node_y, node_text = [], [], []
+    for node in G.nodes():
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
+        node_text.append(name_dct[node])
+
+        node_trace = go.Scatter(
+           x=node_x, y=node_y,
+           mode='markers',
+           hoverinfo='text',
+            marker=dict(showscale=True, colorscale='YlGnBu', size=10, color=[], line_width=2),
+            text=node_text
+        )
+
+
+
+    fig = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(
+        title=title,
+        titlefont_size=16,
+        showlegend=False,
+        hovermode='closest',
+        margin=dict(b=20, l=5, r=5, t=40),
+        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)
+    ))
+
+    fig.show()
+    return G, name_dct, title, fig
+
+def get_graph_metrics(G):
+    return {
+        "Tippude arv": G.number_of_nodes(),
+        "Servade arv": G.number_of_edges(),
+        "Tihedus": nx.density(G),
+        "Komponentide arv": nx.number_connected_components(G),
+        "Suurima komponendi suurus": len(max(nx.connected_components(G), key=len))
+    }
+
+def analyze_degree_centrality(G, name_dct, title, top_n=5):
+
+    centrality = nx.degree_centrality(G)
+
+
+    df = pd.DataFrame({
+        "ID": list(centrality.keys()),
+        "Nimi": [name_dct[i] for i in centrality.keys()],
+        "Degree Centrality": list(centrality.values())
+    })
+
+
+    df_sorted = df.sort_values(by="Degree Centrality", ascending=False).head(top_n)
+
+
+    print(f"\n🔹 {title}: Top {top_n} sõlmed Degree Centrality järgi")
+    print(df_sorted[["Nimi", "Degree Centrality"]])
+
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(df_sorted["Nimi"], df_sorted["Degree Centrality"])
+    plt.title(f"{title}: Top {top_n} sõlmed Degree Centrality järgi")
+    plt.ylabel("Degree Centrality")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.show()
+    return df_sorted
+
+def analyze_betweenness_centrality(G, name_dct, title, top_n=5):
+
+    centrality = nx.betweenness_centrality(G, weight='weight')
+
+
+    df = pd.DataFrame({
+        "ID": list(centrality.keys()),
+        "Nimi": [name_dct[i] for i in centrality.keys()],
+        "Betweenness Centrality": list(centrality.values())
+    })
+
+
+    df_sorted = df.sort_values(by="Betweenness Centrality", ascending=False).head(top_n)
+
+
+    print(f"\n🔹 {title}: Top {top_n} sõlmed Betweenness Centrality järgi")
+    print(df_sorted[["Nimi", "Betweenness Centrality"]])
+
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(df_sorted["Nimi"], df_sorted["Betweenness Centrality"])
+    plt.title(f"{title}: Top {top_n} sõlmed Betweenness Centrality järgi")
+    plt.ylabel("Betweenness Centrality")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.show()
+    return df_sorted
+
+def analyze_closeness_centrality(G, name_dct, title, top_n=5):
+    centrality = nx.closeness_centrality(G)
+
+    df = pd.DataFrame({
+        "ID": list(centrality.keys()),
+        "Nimi": [name_dct[i] for i in centrality.keys()],
+        "Closeness Centrality": list(centrality.values())
+    })
+
+    df_sorted = df.sort_values(by="Closeness Centrality", ascending=False).head(top_n)
+
+    print(f"\n🔹 {title}: Top {top_n} sõlmed Closeness Centrality järgi")
+    print(df_sorted[["Nimi", "Closeness Centrality"]])
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(df_sorted["Nimi"], df_sorted["Closeness Centrality"])
+    plt.title(f"{title}: Top {top_n} sõlmed Closeness Centrality järgi")
+    plt.ylabel("Closeness Centrality")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.show()
+    return df_sorted
+
+def analyze_eigenvector_centrality_components(G, name_dct, title, top_n=5):
+    all_centralities = {}
+
+
+    for component in nx.connected_components(G):
+        subgraph = G.subgraph(component)
+        if len(subgraph) < 2:
+            continue
+
+        try:
+            centrality = nx.eigenvector_centrality(subgraph, max_iter=1000, tol=1e-06)
+            all_centralities.update(centrality)
+        except nx.NetworkXException as e:
+            print(f"⚠️ Viga komponendi töötlemisel: {e}")
+
+
+    df_eigenvector_centrality = pd.DataFrame({
+        "ID": list(all_centralities.keys()),
+        "Nimi": [name_dct.get(i, str(i)) for i in all_centralities.keys()],
+        "Eigenvector Centrality": list(all_centralities.values())
+    })
+
+    df_sorted = df_eigenvector_centrality.sort_values(by="Eigenvector Centrality", ascending=False).head(top_n)
+
+    # Tulemused
+    print(f"\n🔹 {title}: Top {top_n} sõlmed Eigenvector Centrality järgi")
+    print(df_sorted[["Nimi", "Eigenvector Centrality"]])
+
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(df_sorted["Nimi"], df_sorted["Eigenvector Centrality"], color='skyblue')
+    plt.title(f"{title}: Top {top_n} sõlmed Eigenvector Centrality järgi")
+    plt.ylabel("Eigenvector Centrality")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.show()
+
+    return df_eigenvector_centrality
+
+def analyze_k_core(G, name_dct, title, top_n=5):
+    core_numbers = nx.core_number(G)
+
+    df = pd.DataFrame({
+        "ID": list(core_numbers.keys()),
+        "Nimi": [name_dct[i] for i in core_numbers.keys()],
+        "k-core": list(core_numbers.values())
+    })
+
+    df_sorted = df.sort_values(by="k-core", ascending=False).head(top_n)
+
+    print(f"\n🔹 {title}: Top {top_n} sõlmed k-core väärtuse järgi")
+    print(df_sorted[["Nimi", "k-core"]])
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(df_sorted["Nimi"], df_sorted["k-core"])
+    plt.title(f"{title}: Top {top_n} sõlmed k-core järgi")
+    plt.ylabel("k-core väärtus")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.show()
+
+    return df_sorted
+
+def analyze_communities(G, name_dct, title):
+    partition = community_louvain.best_partition(G, random_state=29)
+
+    df_comm = pd.DataFrame({
+        "ID": list(partition.keys()),
+        "Nimi": [name_dct[i] for i in partition.keys()],
+        "Kogukond": list(partition.values())
+    })
+
+    print(f"\n🔹 {title}: Leitud {df_comm['Kogukond'].nunique()} kogukonda")
+    display(df_comm.groupby("Kogukond").head(3))
+
+    plt.figure(figsize=(8, 5))
+    df_comm["Kogukond"].value_counts().sort_index().plot(kind="bar")
+    plt.title(f"{title}: sõlmede jaotus kogukondade kaupa")
+    plt.xlabel("Kogukonna ID")
+    plt.ylabel("Sõlmede arv")
+    plt.tight_layout()
+    plt.show()
+
+    return df_comm
+
+def analyze_communities_and_most_central_nodes(G, df_comm, name_dct, title, min_nodes=10):
+    import os
+    from plotly.io import write_html
+
+    # Kogukondade suurused
+    community_sizes = df_comm["Kogukond"].value_counts().sort_index()
+    df_sizes = community_sizes.reset_index()
+    df_sizes.columns = ["Kogukond", "Sõlmede arv"]
+
+    print(f"\n🔹 {title}: Leitud {df_comm['Kogukond'].nunique()} kogukonda")
+    display(df_sizes[df_sizes["Sõlmede arv"] > min_nodes])
+
+    large_communities = df_comm[df_comm["Kogukond"].isin(
+        df_sizes[df_sizes["Sõlmede arv"] > min_nodes]["Kogukond"]
+    )]
+
+    most_central_nodes = {}
+    kogukondade_tabelid = {}
+
+    for kogukond_id in sorted(large_communities["Kogukond"].unique()):
+        kogukond_sõlmed = large_communities[large_communities["Kogukond"] == kogukond_id]["ID"]
+        subgraph = G.subgraph(kogukond_sõlmed)
+
+        degree_centrality = nx.degree_centrality(subgraph)
+        most_central_node = max(degree_centrality, key=degree_centrality.get)
+        most_central_node_name = name_dct.get(most_central_node, str(most_central_node))
+        most_central_node_degree = degree_centrality[most_central_node]
+
+        most_central_nodes[kogukond_id] = {
+            "keskne_seadus": most_central_node_name,
+            "degree_centrality": most_central_node_degree
+        }
+
+        df_kesklemised = pd.DataFrame({
+            "ID": list(degree_centrality.keys()),
+            "Nimi": [name_dct.get(i, str(i)) for i in degree_centrality.keys()],
+            "Degree Centrality": list(degree_centrality.values())
+        }).sort_values("Degree Centrality", ascending=False).reset_index(drop=True)
+
+        kogukondade_tabelid[kogukond_id] = df_kesklemised
+
+        # Graafi joonis
+        pos = nx.spring_layout(subgraph, seed=42)
+        edge_x, edge_y = [], []
+        for edge in subgraph.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_x += [x0, x1, None]
+            edge_y += [y0, y1, None]
+
+        node_colors = ['red' if node == most_central_node else 'skyblue' for node in subgraph.nodes]
+        node_hovertext = [name_dct.get(node, str(node)) for node in subgraph.nodes]
+        x_nodes = [pos[node][0] for node in subgraph.nodes]
+        y_nodes = [pos[node][1] for node in subgraph.nodes]
+
+        fig = go.Figure(data=[
+            go.Scatter(x=edge_x, y=edge_y, mode='lines', line=dict(width=0.5, color='#888'), hoverinfo='none'),
+            go.Scatter(
+                x=x_nodes, y=y_nodes, mode='markers', hoverinfo='text', hovertext=node_hovertext,
+                marker=dict(size=10, color=node_colors, colorscale='YlGnBu', showscale=True)
+            )
+        ], layout=go.Layout(
+            title=f"{title} – Kogukond {kogukond_id} ({len(subgraph.nodes)} sõlme)",
+            showlegend=False, hovermode='closest',
+            xaxis=dict(showgrid=False, zeroline=False),
+            yaxis=dict(showgrid=False, zeroline=False)
+        ))
+
+        fig.show()
+
+        # Salvestame HTML-failina Google Drive’i
+        filename = f"/content/drive/MyDrive/Mag/Kogukonnad/kogukond_{kogukond_id}.html"
+        fig.write_html(filename)
+        print(f"✅ Salvestatud: {filename}")
+
+    return most_central_nodes, df_comm, kogukondade_tabelid
+
+
+def analyze_community_temporal_dynamics(dataframe, df_comm, name_dct, community_id, year_column="Lahendi kp", top_n=30):
+
+
+
+    kogukonna_sõlmed = df_comm[df_comm["Kogukond"] == community_id]["Nimi"].unique()
+
+    df_sub = dataframe.copy()
+    df_sub = df_sub[df_sub["Seotud sätted"].notna()]
+    df_sub[year_column] = pd.to_datetime(df_sub[year_column], errors='coerce')
+    df_sub["Aasta"] = df_sub[year_column].dt.year
+    df_sub["Seotud sätted"] = df_sub["Seotud sätted"].str.split('\n')
+    df_sub = df_sub.explode("Seotud sätted")
+    df_sub = df_sub[df_sub["Seotud sätted"].isin(kogukonna_sõlmed)]
+
+    # Grupeeri
+    freq = df_sub.groupby(["Seotud sätted", "Aasta"]).size().unstack(fill_value=0)
+
+    # Kuvame ainult top N
+    top_sätted = freq.sum(axis=1).sort_values(ascending=False).head(top_n).index
+    freq = freq.loc[top_sätted]
+
+    # Lühenda väga pikki nimesid
+    freq.index = [n if len(n) <= 17 else n[:17] + "…" for n in freq.index]
+
+    # Joonis
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(freq, cmap="YlGnBu", cbar_kws={'label': 'Esinemissagedus'})
+    plt.title(f"Kogukond {community_id}: top {top_n} normi kasutussagedus aastate lõikes")
+    plt.xlabel("Aasta")
+    plt.ylabel("Seadusesäte")
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.show()
+
+    return freq
+
